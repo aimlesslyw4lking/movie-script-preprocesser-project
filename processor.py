@@ -34,9 +34,9 @@ def tokenize_and_compile(find_scripts) -> dict[str, list[str]]:
     """
     Tokenizes a .txt file in the script folder according to the format.
     Compiles each character found in the script and their
-    respective lines into key-value pairs.
+    respective tokenized lines into key-value pairs.
 
-    Args: ---
+    Args: find_scripts - scripts in the folder
 
     Returns: dict[str, list[str]]
     """
