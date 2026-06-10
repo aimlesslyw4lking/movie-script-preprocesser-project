@@ -78,10 +78,10 @@ The program performs the following operations:
 ```text
 movie-script-preprocessor-project/
 │
-├── raw_scripts/
+├── raw_scripts/                     # Folder containing unprocessed scripts
 │   └── *.txt
 │
-├── cleaned_scripts/                 # Automatically created
+├── cleaned_scripts/                 # Automatically created folder with character corpora
 │   ├── ежик_corpus.txt
 │   ├── крош_corpus.txt
 │   ├── бараш_corpus.txt
