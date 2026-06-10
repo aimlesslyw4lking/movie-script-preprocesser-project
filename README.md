@@ -2,17 +2,23 @@
 
 ## Overview
 
-**movie-script-preprocessor-project** is a Python-based text preprocessing tool designed for linguistic analysis of character speech in the animated series **“Smeshariki” (Kikoriki)**.
+**movie-script-preprocessor-project** is a Python-based text preprocessing tool designed for linguistic analysis of Russian-language dialogue scripts.
 
-The program processes annotated dialogue scripts and automatically:
+The program processes annotated dialogue files in the format:
 
-* extracts character utterances;
-* tokenizes dialogue text;
-* normalizes words through lemmatization;
-* removes Russian stop words;
-* generates separate text corpora for each character.
+```text
+[character_name] dialogue text
+```
 
-The resulting corpora are intended for further linguistic analysis, including the identification of distinctive speech patterns, lexical preferences, and stylistic differences between characters.
+and automatically:
+
+* extracts character utterances
+* tokenizes dialogue text
+* normalizes words through lemmatization
+* removes Russian stop words
+* generates separate text corpora for each character
+
+TThe resulting corpora can be used for linguistic analysis, including lexical analysis, stylistic comparison, frequency analysis, and the identification of distinctive speech patterns between characters.
 
 ---
 
@@ -29,31 +35,32 @@ The resulting corpora are intended for further linguistic analysis, including th
   * [Supported file format](#supported-file-format)
   * [Dialogue format](#dialogue-format)
   * [Parsing rules](#parsing-rules)
-  * [Malformed input behavior](#malformed-input-behavior)
+  * [Input format examples](#input-format-examples)
 * [Processing pipeline](#processing-pipeline)
 
   * [1. Script discovery](#1-script-discovery)
   * [2. Tokenization and dialogue compilation](#2-tokenization-and-dialogue-compilation)
   * [3. Lemmatization and stop word removal](#3-lemmatization-and-stop-word-removal)
   * [4. Corpus generation](#4-corpus-generation)
+* [Running the program](#running-the-program)
 * [Output](#output)
-* [Error handling](#error-handling)
-* [Implementation notes and limitations](#implementation-notes-and-limitations)
+* [Processing behavior](#processing-behavior)
+* [Implementation notes](#implementation-notes)
 * [License](#license)
 
 ---
 
 ## Project goal
 
-The preprocessing pipeline was developed to support linguistic research on the speech characteristics of characters from the animated series **“Smeshariki”**.
+The preprocessing pipeline was developed to support linguistic research on Russian-language dialogue corpora.
 
 The generated corpora can be used for:
 
-* lexical analysis;
-* stylistic comparison between characters;
-* frequency analysis;
-* identification of idiolectal features;
-* linguistic profiling.
+* lexical analysis
+* stylistic comparison between characters
+* frequency analysis
+* identification of idiolectal features
+* linguistic profiling
 
 ---
 
@@ -61,7 +68,10 @@ The generated corpora can be used for:
 
 The program performs the following operations:
 
-1. Recursively searches for `.txt` dialogue files.
+1. Recursively searches for `.txt` dialogue files formatted as:
+   ```text
+   [character_name] dialogue text
+   ```
 2. Extracts character names and dialogue text.
 3. Converts text to lowercase.
 4. Tokenizes dialogue into words.
@@ -207,10 +217,10 @@ Path("./raw_scripts").rglob("*.txt")
 
 If multiple files are present:
 
-* all files are processed;
-* all dialogue lines are read sequentially;
-* the content is combined into a single processing stream;
-* character corpora are compiled across all discovered files.
+* all files are processed
+* all dialogue lines are read sequentially
+* the content is combined into a single processing stream
+* character corpora are compiled across all discovered files
 
 Example:
 
@@ -228,7 +238,7 @@ If isolated corpora are required per script, files should be processed separatel
 
 ### Dialogue format
 
-Each dialogue line must follow the structure:
+The expected dialogue structure is:
 
 ```text
 [character_name] dialogue text
@@ -242,11 +252,10 @@ Example:
 [бараш] Сегодня дождь обещали.
 ```
 
-Each line is expected to contain:
+Each line should contain:
 
 1. a character name enclosed in square brackets `[]`;
-2. a space after the closing bracket `]`;
-3. dialogue text on the same line.
+2. dialogue text following the closing bracket `]` on the same line.
 
 ### Parsing rules
 
@@ -254,9 +263,9 @@ Each line is expected to contain:
 
 Character names are:
 
-* extracted from square brackets;
-* converted to lowercase;
-* normalized by replacing `ё` with `е`.
+* extracted from square brackets
+* converted to lowercase
+* normalized by replacing `ё` with `е`
 
 Example:
 
@@ -264,7 +273,7 @@ Example:
 [Ёжик] → ежик
 ```
 
-This normalization improves consistency but may introduce ambiguity in rare linguistic cases (for example, distinctions between `все` and `всё` are removed).
+This normalization ensures consistent character naming and token representation.
 
 ---
 
@@ -290,11 +299,11 @@ After tokenization:
 
 Important behavior:
 
-* punctuation marks are removed;
-* digits are preserved;
-* alphanumeric characters remain;
-* service annotations are cleaned as ordinary text;
-* token order is preserved.
+* punctuation marks are removed
+* digits are preserved
+* alphanumeric characters remain
+* service annotations are cleaned as ordinary text
+* token order is preserved
 
 Example:
 
@@ -328,65 +337,27 @@ After cleaning:
 неразбр
 ```
 
-Only alphanumeric characters survive preprocessing.
+During token cleaning, only alphanumeric characters are preserved.
 
-### Malformed input behavior
+### Input format examples
 
-The parser processes only lines matching the expected format.
-
-The following examples illustrate how malformed input is handled.
-
-#### Valid line
+The parser processes lines matching the expected dialogue structure:
 
 ```text
-[крош] Привет!
+[character_name] dialogue text
 ```
 
-Processed successfully.
+Examples of accepted and ignored input formats:
 
----
+| Input example    | Behavior                                                      |
+| ---------------- | ------------------------------------------------------------- |
+| `[крош] Привет!` | Processed                                                     |
+| `[крош]`         | Character name is extracted, but no dialogue tokens are added |
+| `крош Привет!`   | Ignored during preprocessing                                  |
+| `[крош Привет!`  | Ignored during preprocessing                                  |
+| `крош: Привет!`  | Ignored during preprocessing                                  |
 
-#### Missing dialogue text
-
-```text
-[крош]
-```
-
-The character name is extracted, but no dialogue tokens are added.
-
----
-
-#### Missing square brackets
-
-```text
-крош Привет!
-```
-
-Skipped silently.
-
----
-
-#### Missing closing bracket
-
-```text
-[крош Привет!
-```
-
-Skipped silently.
-
----
-
-#### Incorrect formatting
-
-```text
-крош: Привет!
-```
-
-Skipped silently.
-
-The current implementation does **not** log warnings for skipped lines.
-
-As a result, malformed input may pass unnoticed unless manually inspected.
+Lines that do not match the expected dialogue format are ignored during preprocessing.
 
 ---
 
@@ -408,11 +379,7 @@ The program recursively searches for `.txt` files inside:
 ./raw_scripts
 ```
 
-If no files are found, the program raises:
-
-```python
-ScriptNotFoundError
-```
+All discovered files are included in preprocessing.
 
 ---
 
@@ -426,10 +393,10 @@ tokenize_and_compile()
 
 This stage:
 
-* extracts character names;
-* separates metadata from dialogue;
-* tokenizes dialogue text;
-* aggregates tokens by character.
+* extracts character names
+* separates metadata from dialogue
+* tokenizes dialogue text
+* aggregates tokens by character
 
 Output structure:
 
@@ -541,10 +508,10 @@ Examples:
 
 Each file contains:
 
-* lemmatized tokens;
-* stop words removed;
-* whitespace-separated tokens;
-* preserved token order.
+* lemmatized tokens
+* stop words removed
+* whitespace-separated tokens
+* preserved token order
 
 Example output:
 
@@ -587,7 +554,7 @@ After successful execution, processed corpora are saved to:
 cleaned_scripts/
 ```
 
-Each file represents the processed speech corpus of a single character.
+Each file represents the processed dialogue corpus of a single character.
 
 Example:
 
@@ -603,32 +570,27 @@ Possible content:
 
 ---
 
-## Error handling
+## Processing behavior
 
-The project defines custom exception classes for execution failures.
+The preprocessing pipeline supports flexible processing of annotated dialogue scripts.
 
-| Exception                    | Description                                  |
-| ---------------------------- | -------------------------------------------- |
-| `ScriptNotFoundError`        | No `.txt` files found in `raw_scripts/`      |
-| `ScriptCompilationError`     | Script compilation returned an empty result  |
-| `ScriptPreprocessingError`   | Preprocessing stage returned an empty result |
-| `CleanScriptNotWrittenError` | Processed files could not be written         |
+| Scenario | Behavior |
+|---|---|
+| `.txt` files in `raw_scripts/` | All discovered files are processed recursively |
+| Valid dialogue entries | Character names and dialogue text are extracted and processed |
+| Empty dialogue entries | Character names are preserved without dialogue tokens |
+| Multiple input files | Character corpora are compiled across all discovered files |
 
-Important implementation detail:
-
-Malformed dialogue lines are skipped silently and do **not** trigger exceptions.
+Only dialogue lines matching the expected format are included in preprocessing.
 
 ---
 
-## Implementation notes and limitations
+## Implementation notes
 
-* The preprocessing pipeline preserves word order.
-* Character names are normalized (`ё → е`).
-* Digits are preserved during preprocessing.
-* The program does not log skipped lines.
-* Multiple input files are merged into shared character corpora.
-* No sentence segmentation is performed.
-* No POS tagging or syntactic parsing is applied.
+* The original token order is preserved within each character corpus.
+* Character names are normalized by replacing `ё` with `е`.
+* Numeric tokens are preserved during preprocessing.
+* Character corpora are compiled from all `.txt` files discovered in `raw_scripts/`.
 
 ---
 
