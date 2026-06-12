@@ -58,7 +58,7 @@ def write_cleaned_file(char_lines_clean: dict[str, int]) -> bool:
     
     Args: char_lines_clean: dict[str, int] 
 
-    Returns: a corpus-ready file for you to enjoy!!! (or suffer bc of projects!)
+    Returns: a cleaned file for you to enjoy!!! (or suffer bc of projects!)
     
     """
     try:
@@ -68,7 +68,7 @@ def write_cleaned_file(char_lines_clean: dict[str, int]) -> bool:
         
         for name, tokens in char_lines_clean.items():
             no_space_name = name.replace(" ", "_")
-            file_path = output_dir / f'{no_space_name}_corpus.txt'
+            file_path = output_dir / f'{no_space_name}_cleaned.txt'
             
             file_words = "\n".join(tokens)
         
@@ -135,7 +135,7 @@ class UDPipeAnalyzer:
 
                 output_file = (
                     output_dir /
-                    f"{txt_file.stem.replace('_corpus', '')}.conllu"
+                    f"{txt_file.stem.replace('_cleaned', '')}.conllu"
                 )
 
                 output_file.write_text(
